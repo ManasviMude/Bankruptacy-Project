@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # ---------------------------
-# Load trained Logistic Regression model
+# Load trained model
 # ---------------------------
 with open('final_logreg_model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 # ---------------------------
-# Streamlit Page Configuration
+# Page config
 # ---------------------------
 st.set_page_config(
     page_title="Bankruptcy Prediction App",
@@ -21,136 +21,105 @@ st.set_page_config(
 )
 
 # ---------------------------
-# Custom CSS for Light Theme + Proper Contrast
+# Strong CSS overrides to ensure LIGHT background and DARK text everywhere
+# (uses !important to override Streamlit / browser dark-mode)
 # ---------------------------
-st.markdown("""
+st.markdown(
+    """
     <style>
-        body {
-            background-color: #f5f7fa;
-            color: #2c2c2c;
-            font-family: 'Segoe UI', sans-serif;
-        }
+    /* Page background */
+    html, body, .main {
+        background-color: #f5f7fa !important;
+        color: #111111 !important;
+    }
 
-        .stApp {
-            background-color: #ffffff;
-            padding: 2.5rem;
-            border-radius: 1.5rem;
-            box-shadow: 0px 6px 18px rgba(0,0,0,0.05);
-        }
+    /* Main app container */
+    .stApp, .block-container {
+        background-color: #ffffff !important;
+        color: #111111 !important;
+    }
 
-        .main-title {
-            text-align: center;
-            color: #002855;
-            font-weight: 800;
-            font-size: 2.2rem;
-            background: linear-gradient(90deg, #003366, #0077b6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.3rem;
-        }
+    /* Headings and markdown text */
+    h1, h2, h3, h4, h5, h6, p, span, div, label {
+        color: #111111 !important;
+    }
 
-        .subtitle {
-            text-align: center;
-            color: #444;
-            font-size: 1.05rem;
-            margin-bottom: 2rem;
-        }
+    /* Streamlit widgets text */
+    .stText, .stMarkdown, .stMetric, .stNumberInput, .stSelectbox, .stButton {
+        color: #111111 !important;
+    }
 
-        .section-box {
-            background-color: #f0f4f8;
-            border-radius: 12px;
-            padding: 1.5rem 1.5rem 0.5rem 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.03);
-        }
+    /* Buttons */
+    .stButton>button {
+        color: #ffffff !important;
+    }
 
-        .section-header {
-            color: #003366;
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
+    /* Make code blocks light and text dark */
+    pre, code, .stCodeBlock, .st-rtf, .media {
+        background: #f3f4f6 !important;
+        color: #0b0b0b !important;
+        border: 1px solid rgba(0,0,0,0.06) !important;
+    }
 
-        .stSelectbox label {
-            font-weight: 600;
-            color: #2c3e50;
-        }
+    /* Metric value style */
+    .stMetricValue, .stMetricDelta {
+        color: #111111 !important;
+    }
 
-        .stButton button {
-            background: linear-gradient(to right, #4A90E2, #50E3C2);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 0.6rem 1.3rem;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease-in-out;
-        }
+    /* Tooltip / help text */
+    .css-1kyxreq, .css-1v3fvcr { color: #111111 !important; }
 
-        .stButton button:hover {
-            transform: scale(1.05);
-            background: linear-gradient(to right, #50E3C2, #4A90E2);
-        }
+    /* Stronger contrast for suggestion boxes */
+    .suggestion-box { color: #111 !important; }
 
-        /* Suggestion box styling */
-        .suggestion-box {
-            padding: 14px 16px;
-            border-radius: 10px;
-            margin-top: 10px;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
+    /* Ensure pyplot text is dark */
+    .stImage img, svg { color: #111111 !important; }
 
-        .bad-suggestion {
-            background-color: #ffe6e6;  /* soft red */
-            border-left: 6px solid #ff4d4d;
-            color: #333333;  /* darker text for readability */
-        }
+    /* Remove any overlay dark backgrounds */
+    [class*="dark"], [data-testid*="dark"], .viewer, .code, .stExpander {
+        background: transparent !important;
+    }
 
-        .good-suggestion {
-            background-color: #e6ffed;  /* soft green */
-            border-left: 6px solid #00cc66;
-            color: #333333;  /* dark text for readability */
-        }
+    /* Fallback: force all text nodes inside to be dark */
+    .stApp * { color: #111111 !important; }
 
-        .footer {
-            text-align: center;
-            color: #777;
-            margin-top: 2.5rem;
-            font-size: 0.9rem;
-        }
     </style>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
 # ---------------------------
-# Header Section
+# UI: header
 # ---------------------------
-st.markdown("<h1 class='main-title'>🏦 Bankruptcy Prediction App</h1>", unsafe_allow_html=True)
-st.markdown("<p class='subtitle'>Predict a company's financial health using Logistic Regression</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;margin-bottom:0.2rem;color:#002855;font-weight:800'>🏦 Bankruptcy Prediction App</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:#444;margin-top:0.2rem;margin-bottom:1.5rem;'>Predict a company's financial health using Logistic Regression</p>", unsafe_allow_html=True)
 
 # ---------------------------
-# Input Section
+# Input section (card)
 # ---------------------------
-st.markdown("<div class='section-box'>", unsafe_allow_html=True)
-st.markdown("<div class='section-header'>📊 Enter Company Financial Indicators</div>", unsafe_allow_html=True)
+st.markdown(
+    """
+    <div style="background:#f0f4f8;border-radius:12px;padding:18px;margin-bottom:20px;box-shadow: inset 0 0 8px rgba(0,0,0,0.03);">
+      <div style="font-size:18px;font-weight:700;color:#003366;margin-bottom:10px;">📊 Enter Company Financial Indicators</div>
+    """
+    , unsafe_allow_html=True
+)
 
 options = [0.0, 0.5, 1.0]
-
 col1, col2 = st.columns(2)
 with col1:
     industrial_risk = st.selectbox("Industrial Risk", options, index=1)
     management_risk = st.selectbox("Management Risk", options, index=1)
     financial_flexibility = st.selectbox("Financial Flexibility", options, index=1)
-
 with col2:
     credibility = st.selectbox("Credibility", options, index=1)
     competitiveness = st.selectbox("Competitiveness", options, index=1)
     operating_risk = st.selectbox("Operating Risk", options, index=1)
 
-st.markdown("</div>", unsafe_allow_html=True)  # close section box
+st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Data Preparation
+# Prepare data
 # ---------------------------
 data = pd.DataFrame({
     'industrial_risk': [industrial_risk],
@@ -162,46 +131,38 @@ data = pd.DataFrame({
 })
 
 # ---------------------------
-# Prediction Section + Probability Chart
+# Predict button
 # ---------------------------
 st.markdown("---")
 if st.button("🔍 Predict Bankruptcy"):
-    # Prediction and (if available) probabilities
     prediction = model.predict(data)[0]
 
-    # Try to obtain probability for each class
+    # probabilities (robust)
     if hasattr(model, "predict_proba"):
-        probs = model.predict_proba(data)[0]  # array in order of model.classes_
+        probs = model.predict_proba(data)[0]
         classes = list(model.classes_)
-        # find indices for class labels 0 and 1 robustly
-        try:
-            idx_bankruptcy = classes.index(0)
-        except ValueError:
-            # fallback: if 0 not present, try 'bankruptcy' string or assume index 0
-            idx_bankruptcy = 0
-            for i, c in enumerate(classes):
-                if str(c).lower().startswith('bank'):
-                    idx_bankruptcy = i
-                    break
-        try:
-            idx_nonbank = classes.index(1)
-        except ValueError:
-            # fallback: pick the other index
-            idx_nonbank = 1 if idx_bankruptcy == 0 and len(classes) > 1 else (0 if len(classes) > 1 else idx_bankruptcy)
-
-        prob_bankruptcy = float(probs[idx_bankruptcy])
-        prob_nonbank = float(probs[idx_nonbank]) if idx_nonbank < len(probs) else (1.0 - prob_bankruptcy)
+        # pick indices robustly
+        def find_index(targets, candidate_values):
+            for t in candidate_values:
+                if t in targets:
+                    return targets.index(t)
+            return None
+        idx_bank = find_index(classes, [0, '0', 'bankruptcy', 'Bankruptcy'])
+        if idx_bank is None:
+            idx_bank = 0
+        idx_non = 1 if idx_bank == 0 and len(classes) > 1 else (0 if len(classes)>1 else idx_bank)
+        prob_bankruptcy = float(probs[idx_bank])
+        prob_nonbank = float(probs[idx_non]) if idx_non < len(probs) else 1.0 - prob_bankruptcy
     else:
-        # fallback: no predict_proba available
         prob_bankruptcy = 1.0 if prediction == 0 else 0.0
         prob_nonbank = 1.0 - prob_bankruptcy
 
-    # Show textual result and suggestion
+    # result + suggestion (use dark text)
     st.markdown("---")
     if prediction == 0:
         st.error("⚠️ **Result:** The company is predicted to be at risk of **Bankruptcy**.")
         st.markdown(
-            "<div class='suggestion-box bad-suggestion'>"
+            "<div class='suggestion-box' style='background:#fff2f2;border-left:6px solid #ff4d4d;padding:12px;border-radius:8px;color:#111'>"
             "💡 <b>Suggestion:</b> Improve liquidity, reduce operational risk, and enhance management efficiency."
             "</div>",
             unsafe_allow_html=True
@@ -209,72 +170,49 @@ if st.button("🔍 Predict Bankruptcy"):
     else:
         st.success("✅ **Result:** The company is predicted to be **Financially Healthy**.")
         st.markdown(
-            "<div class='suggestion-box good-suggestion'>"
+            "<div class='suggestion-box' style='background:#f2fff4;border-left:6px solid #00aa44;padding:12px;border-radius:8px;color:#111'>"
             "💡 <b>Suggestion:</b> Maintain strong financial flexibility and competitiveness to ensure long-term stability."
             "</div>",
             unsafe_allow_html=True
         )
 
     # ---------------------------
-    # Show probabilities (percentages) — improved contrast & layout
+    # Probabilities card (high contrast)
     # ---------------------------
     st.markdown("### 🔢 Predicted Probabilities")
-
     perc_bank = round(prob_bankruptcy * 100, 1)
     perc_non = round(prob_nonbank * 100, 1)
 
-    # Beautiful, high-contrast card with two metric boxes
     card_html = f"""
-    <div style="
-        background: #ffffff;
-        border: 1px solid rgba(0,0,0,0.06);
-        border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 12px;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-    ">
-      <div style="display:flex; gap:12px; align-items:stretch; justify-content:flex-start;">
-        <div style="
-            flex: 1;
-            background: linear-gradient(180deg, rgba(255,107,107,0.06), rgba(255,107,107,0.02));
-            border-radius: 10px;
-            padding: 12px;
-            min-width: 140px;
-            ">
-            <div style="color:#7a1f1f; font-weight:700; font-size:14px; margin-bottom:6px;">Bankruptcy</div>
-            <div style="color:#111111; font-weight:800; font-size:26px;">{perc_bank} %</div>
-            <div style="color:#555; font-size:12px; margin-top:6px;">Probability (model)</div>
+    <div style="background:#ffffff;border:1px solid rgba(0,0,0,0.06);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 4px 12px rgba(15,23,42,0.04);">
+      <div style="display:flex; gap:12px; align-items:stretch;">
+        <div style="flex:1;background:linear-gradient(180deg, rgba(255,107,107,0.06), rgba(255,107,107,0.02));border-radius:10px;padding:12px;min-width:140px;">
+            <div style="color:#7a1f1f;font-weight:700;font-size:14px;margin-bottom:6px;">Bankruptcy</div>
+            <div style="color:#111;font-weight:800;font-size:26px;">{perc_bank} %</div>
+            <div style="color:#555;font-size:12px;margin-top:6px;">Probability (model)</div>
         </div>
-
-        <div style="
-            flex: 1;
-            background: linear-gradient(180deg, rgba(76,217,100,0.06), rgba(76,217,100,0.02));
-            border-radius: 10px;
-            padding: 12px;
-            min-width: 140px;
-            ">
-            <div style="color:#11633f; font-weight:700; font-size:14px; margin-bottom:6px;">Non-Bankruptcy</div>
-            <div style="color:#111111; font-weight:800; font-size:26px;">{perc_non} %</div>
-            <div style="color:#555; font-size:12px; margin-top:6px;">Probability (model)</div>
+        <div style="flex:1;background:linear-gradient(180deg, rgba(76,217,100,0.06), rgba(76,217,100,0.02));border-radius:10px;padding:12px;min-width:140px;">
+            <div style="color:#11633f;font-weight:700;font-size:14px;margin-bottom:6px;">Non-Bankruptcy</div>
+            <div style="color:#111;font-weight:800;font-size:26px;">{perc_non} %</div>
+            <div style="color:#555;font-size:12px;margin-top:6px;">Probability (model)</div>
         </div>
       </div>
     </div>
     """
     st.markdown(card_html, unsafe_allow_html=True)
 
-    # numeric display using Streamlit metrics (accessible)
-    col1, col2 = st.columns(2)
-    col1.metric("Bankruptcy", f"{perc_bank} %")
-    col2.metric("Non-Bankruptcy", f"{perc_non} %")
+    # accessible metrics
+    c1, c2 = st.columns(2)
+    c1.metric("Bankruptcy", f"{perc_bank} %")
+    c2.metric("Non-Bankruptcy", f"{perc_non} %")
 
     # ---------------------------
-    # Charts (pie + horizontal bar)
+    # Charts (matplotlib)
     # ---------------------------
     labels = ['Bankruptcy', 'Non-Bankruptcy']
     values = [prob_bankruptcy, prob_nonbank]
     colors = ['#ff6b6b', '#4cd964']
 
-    # Pie chart (donut)
     fig1, ax1 = plt.subplots(figsize=(3.5, 3.5))
     wedges, texts, autotexts = ax1.pie(
         values,
@@ -284,26 +222,22 @@ if st.button("🔍 Predict Bankruptcy"):
         colors=colors,
         wedgeprops=dict(width=0.45, edgecolor='w')
     )
-    ax1.axis('equal')  # equal aspect ratio ensures pie is circular
+    ax1.axis('equal')
     plt.setp(autotexts, size=10, weight="bold", color="#333333")
     plt.setp(texts, size=10)
     st.pyplot(fig1, clear_figure=True)
 
-    # Horizontal bar chart
     fig2, ax2 = plt.subplots(figsize=(6, 1.2))
     y_pos = np.arange(len(labels))
     ax2.barh(y_pos, [v * 100 for v in values], color=colors, height=0.6)
     ax2.set_yticks(y_pos)
     ax2.set_yticklabels(labels)
     ax2.set_xlim(0, 100)
-    ax2.invert_yaxis()  # highest on top
+    ax2.invert_yaxis()
     ax2.set_xlabel('Probability (%)')
     for i, v in enumerate([v * 100 for v in values]):
         ax2.text(v + 1.5, i, f"{v:.1f}%", va='center', color='#111111', fontweight='600')
     plt.tight_layout()
     st.pyplot(fig2, clear_figure=True)
 
-# ---------------------------
-# Footer
-# ---------------------------
-st.markdown("<p class='footer'>Developed with ❤️ using Streamlit and Scikit-learn | Designed by ChatGPT ✨</p>", unsafe_allow_html=True)
+
