@@ -19,21 +19,51 @@ st.set_page_config(
 )
 
 # ---------------------------
-# Custom CSS for a beautiful light UI
+# Custom CSS for Beautiful Light UI
 # ---------------------------
 st.markdown("""
     <style>
+        /* Global page background */
         body {
             background-color: #f7f9fc;
             color: #2c2c2c;
             font-family: 'Segoe UI', sans-serif;
         }
+
+        /* Main content container */
         .stApp {
             background-color: #ffffff;
             padding: 2.5rem;
             border-radius: 1.5rem;
             box-shadow: 0px 6px 18px rgba(0,0,0,0.05);
         }
+
+        /* Improved heading design */
+        .main-title {
+            text-align: center;
+            color: #002855; /* darker navy blue for contrast */
+            font-weight: 800;
+            font-size: 2.1rem;
+            background: linear-gradient(90deg, #003366, #0077b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Input section labels */
+        .stNumberInput label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        /* Prediction button */
         .stButton button {
             background: linear-gradient(to right, #4A90E2, #50E3C2);
             color: white;
@@ -44,30 +74,17 @@ st.markdown("""
             font-size: 1rem;
             transition: all 0.3s ease-in-out;
         }
+
         .stButton button:hover {
             transform: scale(1.05);
             background: linear-gradient(to right, #50E3C2, #4A90E2);
         }
-        .main-title {
-            color: #003366;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 0.5rem;
-        }
-        .subtitle {
-            text-align: center;
-            color: #4f4f4f;
-            font-size: 1.05rem;
-            margin-bottom: 2rem;
-        }
-        .stNumberInput label {
-            font-weight: 600;
-            color: #2c3e50;
-        }
+
+        /* Footer */
         .footer {
             text-align: center;
             color: #888;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
             font-size: 0.9rem;
         }
     </style>
@@ -116,19 +133,21 @@ if st.button("🔍 Predict Bankruptcy"):
     if prediction == 0:
         st.error("⚠️ **Result:** The company is predicted to be at risk of **Bankruptcy**.")
         st.markdown(
-            "<div style='background-color:#ffe6e6;padding:10px;border-left:6px solid #ff4d4d;border-radius:8px;'>"
-            "<b>Suggestion:</b> Review liquidity, reduce operational risk, and increase management efficiency."
-            "</div>", unsafe_allow_html=True
+            "<div style='background-color:#ffe6e6;padding:12px;border-left:6px solid #ff4d4d;border-radius:8px;margin-top:10px;'>"
+            "<b>💡 Suggestion:</b> Improve liquidity, reduce operational risk, and increase management efficiency."
+            "</div>",
+            unsafe_allow_html=True
         )
     else:
         st.success("✅ **Result:** The company is predicted to be **Financially Healthy**.")
         st.markdown(
-            "<div style='background-color:#e6ffed;padding:10px;border-left:6px solid #00cc66;border-radius:8px;'>"
-            "<b>Suggestion:</b> Maintain financial flexibility and competitiveness to stay stable."
-            "</div>", unsafe_allow_html=True
+            "<div style='background-color:#e6ffed;padding:12px;border-left:6px solid #00cc66;border-radius:8px;margin-top:10px;'>"
+            "<b>💡 Suggestion:</b> Maintain strong financial flexibility and competitiveness to stay stable."
+            "</div>",
+            unsafe_allow_html=True
         )
 
 # ---------------------------
-# Footer
+# Footer Section
 # ---------------------------
-st.markdown("<p class='footer'>Developed with ❤️ using Streamlit and Scikit-learn | Designed by ChatGPT ✨</p>", unsafe_allow_html=True)
+st.markdown("<p class='footer'></p>", unsafe_allow_html=True)
