@@ -36,8 +36,8 @@ with st.sidebar:
     show_metrics = st.checkbox("Show evaluation if labels are provided", value=True)
 
     st.markdown("---")
-    st.markdown("**Developed by:** Your Name")
-    st.markdown("📧 your@email.com")
+    st.markdown("**Developed by:** Group No 5")
+    st.markdown("📧 group5@email.com")
 
     if st.button("🔄 Reset"):
         st.experimental_rerun()
