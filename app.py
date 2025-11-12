@@ -19,7 +19,7 @@ except FileNotFoundError:
 # ---------------------------
 # Page Config
 # ---------------------------
-st.set_page_config(page_title="Bankruptcy Prediction App", page_icon="🏦", layout="wide")
+st.set_page_config(page_title="Bankruptcy Prediction App", page_icon="🏦", layout="centre")
 
 # ---------------------------
 # App Header
