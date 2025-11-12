@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # ---------------------------
-# Custom CSS for a Clean Light UI
+# Custom CSS for Light Theme + Proper Contrast
 # ---------------------------
 st.markdown("""
     <style>
@@ -90,9 +90,30 @@ st.markdown("""
             background: linear-gradient(to right, #50E3C2, #4A90E2);
         }
 
+        /* Suggestion box styling */
+        .suggestion-box {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .bad-suggestion {
+            background-color: #ffe6e6;  /* soft red */
+            border-left: 6px solid #ff4d4d;
+            color: #333333;  /* darker text for readability */
+        }
+
+        .good-suggestion {
+            background-color: #e6ffed;  /* soft green */
+            border-left: 6px solid #00cc66;
+            color: #333333;  /* dark text for readability */
+        }
+
         .footer {
             text-align: center;
-            color: #888;
+            color: #777;
             margin-top: 2.5rem;
             font-size: 0.9rem;
         }
@@ -106,7 +127,7 @@ st.markdown("<h1 class='main-title'>🏦 Bankruptcy Prediction App</h1>", unsafe
 st.markdown("<p class='subtitle'>Predict a company's financial health using Logistic Regression</p>", unsafe_allow_html=True)
 
 # ---------------------------
-# Input Section (with 0, 0.5, 1 options)
+# Input Section
 # ---------------------------
 st.markdown("<div class='section-box'>", unsafe_allow_html=True)
 st.markdown("<div class='section-header'>📊 Enter Company Financial Indicators</div>", unsafe_allow_html=True)
@@ -127,7 +148,7 @@ with col2:
 st.markdown("</div>", unsafe_allow_html=True)  # close section box
 
 # ---------------------------
-# Prepare DataFrame for Prediction
+# Data Preparation
 # ---------------------------
 data = pd.DataFrame({
     'industrial_risk': [industrial_risk],
@@ -139,7 +160,7 @@ data = pd.DataFrame({
 })
 
 # ---------------------------
-# Prediction Button
+# Prediction Section
 # ---------------------------
 st.markdown("---")
 if st.button("🔍 Predict Bankruptcy"):
@@ -149,21 +170,18 @@ if st.button("🔍 Predict Bankruptcy"):
     if prediction == 0:
         st.error("⚠️ **Result:** The company is predicted to be at risk of **Bankruptcy**.")
         st.markdown(
-            "<div style='background-color:#ffe6e6;padding:12px;border-left:6px solid #ff4d4d;border-radius:8px;margin-top:10px;'>"
-            "<b>💡 Suggestion:</b> Improve liquidity, reduce operational risk, and enhance management efficiency."
+            "<div class='suggestion-box bad-suggestion'>"
+            "💡 <b>Suggestion:</b> Improve liquidity, reduce operational risk, and enhance management efficiency."
             "</div>",
             unsafe_allow_html=True
         )
     else:
         st.success("✅ **Result:** The company is predicted to be **Financially Healthy**.")
         st.markdown(
-            "<div style='background-color:#e6ffed;padding:12px;border-left:6px solid #00cc66;border-radius:8px;margin-top:10px;'>"
-            "<b>💡 Suggestion:</b> Maintain strong financial flexibility and competitiveness to ensure long-term stability."
+            "<div class='suggestion-box good-suggestion'>"
+            "💡 <b>Suggestion:</b> Maintain strong financial flexibility and competitiveness to ensure long-term stability."
             "</div>",
             unsafe_allow_html=True
         )
 
-# ---------------------------
-# Footer
-# ---------------------------
-st.markdown("<p class='footer'></p>", unsafe_allow_html=True)
+
