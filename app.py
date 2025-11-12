@@ -1,4 +1,4 @@
-# app.py  — Streamlit Bankruptcy Predictor (detailed UI, upload enabled, no pie charts; uses ROC/CM/etc.)
+# app.py
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -9,16 +9,19 @@ from sklearn.metrics import (
     confusion_matrix, roc_auc_score, roc_curve, precision_recall_curve, auc
 )
 
-# =========================
-# Configuration
-# =========================
+# ---------------------------
+# IMPORTANT: set_page_config MUST be called before any other Streamlit commands
+# ---------------------------
 st.set_page_config(page_title="Bankruptcy Prediction App", page_icon="🏦", layout="wide")
 
+# =========================
+# Configuration & constants
+# =========================
 MODEL_PATH = "final_logreg_model.pkl"
 LABEL_CANDIDATES = ["class", "Class", "target", "Target", "y", "label", "Label"]
 
 # =========================
-# Load trained model
+# Load model (cached)
 # =========================
 @st.cache_resource
 def load_model(path: str):
@@ -28,11 +31,11 @@ def load_model(path: str):
 try:
     model = load_model(MODEL_PATH)
 except FileNotFoundError:
-    st.error(f"Model file '{MODEL_PATH}' not found in the app folder.")
+    st.error(f"Model file '{MODEL_PATH}' not found in the app folder. Upload or place the model file and restart.")
     st.stop()
 
 # =========================
-# Utility functions
+# Utility helpers
 # =========================
 def prepare_features_from_df(df: pd.DataFrame, model) -> pd.DataFrame:
     """Drop label column if present; align columns to model.feature_names_in_ (if available)."""
@@ -155,7 +158,7 @@ with st.sidebar:
     )
     st.markdown("---")
     uploaded = st.file_uploader("📂 Upload CSV/XLSX for batch predictions", type=["csv", "xlsx", "xls"])
-    st.caption("Tip: If your file includes a label column (e.g., `class`), the app will show evaluation with ROC, PR, and Confusion Matrix.")
+    st.caption("If your file includes a label column (e.g., `class`), the app will show evaluation with ROC, PR, and Confusion Matrix.")
     st.markdown("---")
     st.write("**Model Info**")
     st.write(f"- Type: `{model.__class__.__name__}`")
@@ -319,8 +322,6 @@ if uploaded is not None:
                     # ROC & PR (need probabilities for the positive class = bankruptcy)
                     if "prob_bankruptcy" in out.columns:
                         # create binary labels: 1 for bankruptcy, else 0
-                        # if your dataset encodes bankruptcy as 0, map to 1 for ROC/PR where '1' means positive class
-                        # here: y_true_bank = (y_true == 0).astype(int)
                         y_true_bank = (y_true == 0).astype(int)
                         scores = out["prob_bankruptcy"].values
 
@@ -342,4 +343,4 @@ if uploaded is not None:
 # Footer
 # =========================
 st.markdown("---")
-st.caption("Built with Streamlit • Logistic Regression • No pie charts — using probabilities, ROC, PR, and confusion matrix for insights.")
+st.caption("Built with Streamlit • Logistic Regression • ROC/PR/Confusion Matrix available when labels are provided.")
