@@ -172,20 +172,25 @@ if st.button("🔍 Predict Bankruptcy"):
     # Try to obtain probability for each class
     if hasattr(model, "predict_proba"):
         probs = model.predict_proba(data)[0]  # array in order of model.classes_
-        # Ensure mapping: find index of class 0 (bankruptcy) and class 1 (non-bankruptcy)
         classes = list(model.classes_)
-        # Default mapping
+        # find indices for class labels 0 and 1 robustly
         try:
             idx_bankruptcy = classes.index(0)
+        except ValueError:
+            # fallback: if 0 not present, try 'bankruptcy' string or assume index 0
+            idx_bankruptcy = 0
+            for i, c in enumerate(classes):
+                if str(c).lower().startswith('bank'):
+                    idx_bankruptcy = i
+                    break
+        try:
             idx_nonbank = classes.index(1)
         except ValueError:
-            # if classes are strings or reversed, try common labels
-            # map smallest prob to bankruptcy if unsure (fallback)
-            idx_bankruptcy = 0
-            idx_nonbank = 1 if len(classes) > 1 else 0
+            # fallback: pick the other index
+            idx_nonbank = 1 if idx_bankruptcy == 0 and len(classes) > 1 else (0 if len(classes) > 1 else idx_bankruptcy)
 
-        prob_bankruptcy = probs[idx_bankruptcy]
-        prob_nonbank = probs[idx_nonbank] if idx_nonbank < len(probs) else (1 - prob_bankruptcy)
+        prob_bankruptcy = float(probs[idx_bankruptcy])
+        prob_nonbank = float(probs[idx_nonbank]) if idx_nonbank < len(probs) else (1.0 - prob_bankruptcy)
     else:
         # fallback: no predict_proba available
         prob_bankruptcy = 1.0 if prediction == 0 else 0.0
@@ -211,19 +216,59 @@ if st.button("🔍 Predict Bankruptcy"):
         )
 
     # ---------------------------
-    # Show probabilities (percentages)
+    # Show probabilities (percentages) — improved contrast & layout
     # ---------------------------
     st.markdown("### 🔢 Predicted Probabilities")
+
     perc_bank = round(prob_bankruptcy * 100, 1)
     perc_non = round(prob_nonbank * 100, 1)
 
-    # numeric display side-by-side
-    c1, c2 = st.columns(2)
-    c1.metric("Bankruptcy", f"{perc_bank} %", delta=None)
-    c2.metric("Non-Bankruptcy", f"{perc_non} %", delta=None)
+    # Beautiful, high-contrast card with two metric boxes
+    card_html = f"""
+    <div style="
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    ">
+      <div style="display:flex; gap:12px; align-items:stretch; justify-content:flex-start;">
+        <div style="
+            flex: 1;
+            background: linear-gradient(180deg, rgba(255,107,107,0.06), rgba(255,107,107,0.02));
+            border-radius: 10px;
+            padding: 12px;
+            min-width: 140px;
+            ">
+            <div style="color:#7a1f1f; font-weight:700; font-size:14px; margin-bottom:6px;">Bankruptcy</div>
+            <div style="color:#111111; font-weight:800; font-size:26px;">{perc_bank} %</div>
+            <div style="color:#555; font-size:12px; margin-top:6px;">Probability (model)</div>
+        </div>
+
+        <div style="
+            flex: 1;
+            background: linear-gradient(180deg, rgba(76,217,100,0.06), rgba(76,217,100,0.02));
+            border-radius: 10px;
+            padding: 12px;
+            min-width: 140px;
+            ">
+            <div style="color:#11633f; font-weight:700; font-size:14px; margin-bottom:6px;">Non-Bankruptcy</div>
+            <div style="color:#111111; font-weight:800; font-size:26px;">{perc_non} %</div>
+            <div style="color:#555; font-size:12px; margin-top:6px;">Probability (model)</div>
+        </div>
+      </div>
+    </div>
+    """
+    st.markdown(card_html, unsafe_allow_html=True)
+
+    # numeric display using Streamlit metrics (accessible)
+    col1, col2 = st.columns(2)
+    col1.metric("Bankruptcy", f"{perc_bank} %")
+    col2.metric("Non-Bankruptcy", f"{perc_non} %")
 
     # ---------------------------
-    # Create a pie chart and horizontal bar chart using matplotlib
+    # Charts (pie + horizontal bar)
     # ---------------------------
     labels = ['Bankruptcy', 'Non-Bankruptcy']
     values = [prob_bankruptcy, prob_nonbank]
@@ -239,7 +284,7 @@ if st.button("🔍 Predict Bankruptcy"):
         colors=colors,
         wedgeprops=dict(width=0.45, edgecolor='w')
     )
-    ax1.axis('equal')  # equal aspect ratio ensures pie is drawn as a circle
+    ax1.axis('equal')  # equal aspect ratio ensures pie is circular
     plt.setp(autotexts, size=10, weight="bold", color="#333333")
     plt.setp(texts, size=10)
     st.pyplot(fig1, clear_figure=True)
@@ -254,7 +299,11 @@ if st.button("🔍 Predict Bankruptcy"):
     ax2.invert_yaxis()  # highest on top
     ax2.set_xlabel('Probability (%)')
     for i, v in enumerate([v * 100 for v in values]):
-        ax2.text(v + 1.5, i, f"{v:.1f}%", va='center', color='#333333', fontweight='600')
+        ax2.text(v + 1.5, i, f"{v:.1f}%", va='center', color='#111111', fontweight='600')
+    plt.tight_layout()
     st.pyplot(fig2, clear_figure=True)
 
-
+# ---------------------------
+# Footer
+# ---------------------------
+st.markdown("<p class='footer'>Developed with ❤️ using Streamlit and Scikit-learn | Designed by ChatGPT ✨</p>", unsafe_allow_html=True)
