@@ -279,3 +279,4 @@ if uploaded is not None:
             except Exception as e:
                 st.error(f"Prediction failed: {e}")
 
+
